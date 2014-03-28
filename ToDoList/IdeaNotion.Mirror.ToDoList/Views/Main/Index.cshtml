@@ -1,0 +1,127 @@
+﻿@{
+    ViewBag.Title = "IdeaNotion Glass Demo - To Do List";    
+}
+
+@model IdeaNotion.Mirror.ToDoList.Models.IndexModel
+
+
+<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="brand" href="#">Glass Demo - To-Do List</a>
+            <a class="" href="@Url.Action("Auth", "Signout")">Log Out</a>
+        </div>
+    </div>
+</div>
+
+
+<div class="container" style="margin-top:50px;">
+    @if (!String.IsNullOrEmpty(Model.Message))
+    {
+        <span class="label label-warning">Message: @Model.Message</span>
+    }
+
+
+
+    @if (Model.HasCover)
+    {
+    <div style="margin-top: 5px;">
+    <div class="hero-unit">
+        <h1>To-Do Items</h1>
+
+        <div class="panel panel-primary">
+            <div class="panel-heading ">Add a new Item</div>
+            <div class="panel-body">
+
+                <form action="@Url.Action("Post", "Main")" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <input type="text" name="message" class="form-control" id="message" placeholder="To Do...">
+                    </div>
+                    <div class="form-group">
+                        <label for="imagefile">Image:</label>
+                        <input type="file" name="imagefile" />
+                    </div>
+
+                    <input type="hidden" name="operation" value="insertItem">
+                    <button class="btn" type="submit">Add</button>
+                </form>
+
+                </div>    
+            </div>
+        </div>
+
+
+        @foreach (Google.Apis.Mirror.v1.Data.TimelineItem timelineItem in Model.ToDoItems) {
+              <ul class="list-group">
+ 
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-md-4 col-xs-6">
+                            <strong>Text:</strong>
+                        </div>
+                        <div class="col-md-4 col-xs-6">
+                            @timelineItem.Text
+                        </div>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-md-4 col-xs-6">
+                            <strong>Attachment:</strong>
+                        </div>
+                        <div class="col-md-4 col-xs-6">
+                            @if (timelineItem.Attachments != null) {
+                            foreach (Google.Apis.Mirror.v1.Data.Attachment attachment in timelineItem.Attachments) {
+                                if (attachment.ContentType.StartsWith("image")) {
+                                    <a href="#" class="thumbnail">
+                                <img src="/attachmentproxy?attachment=@attachment.Id&timelineItem=@timelineItem.Id">
+                                        </a>
+                                } else {
+                                <a href="/attachmentproxy?attachment=@attachment.Id&timelineItem=@timelineItem.Id">Download</a>
+                                }
+                            }
+                            }
+                        </div>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                  <form action="@Url.Action("Post", "Main")" method="post">
+                    <input type="hidden" name="itemId" value="@timelineItem.Id">
+                    <input type="hidden" name="operation" value="deleteTimelineItem">
+                    <button class="btn" type="submit">Delete Item</button>
+                  </form>
+                </li>
+            </ul>
+      }
+    </div>
+        
+  
+
+    }
+    else
+    {
+        <div class="row">
+            <div class="span4">
+                <h2>Add a To Do List Cover</h2>
+
+                <p>
+                </p>
+
+                <form action="@Url.Action("Post", "Main")" method="post">
+                    <input type="hidden" name="operation" value="insertToDoListCover">
+                    <input type="hidden" name="message" value="To Do List" /><br />
+                    <button class="btn" type="submit">Create</button>
+                </form>
+            </div>
+        </div>
+            
+    }
+
+    <div class="row">
+    <form action="@Url.Action("Post", "Main")" method="post">
+        <input type="hidden" name="operation" value="deleteAll">
+        <button class="btn btn-info" type="submit">Delete ALL</button>
+    </form>
+    </div>
+</div>
